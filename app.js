@@ -124,3 +124,31 @@ taskInput.addEventListener('keydown', function(event) {
 
 // Load tasks when the DOM is ready
 window.addEventListener('DOMContentLoaded', loadTasks);
+
+// Dark Mode Toggle
+const darkModeToggle = document.getElementById('darkModeToggle');
+
+// Function to toggle dark mode
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+
+    // Save preference in localStorage
+    if (document.body.classList.contains('dark-mode')) {
+        localStorage.setItem('theme', 'dark');
+    } else {
+        localStorage.setItem('theme', 'light');
+    }
+}
+
+// Event listener on Dark Mode button
+darkModeToggle.addEventListener('click', toggleDarkMode);
+
+// Check saved theme on page load
+function loadTheme() {
+    const theme = localStorage.getItem('theme');
+    if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+}
+
+window.addEventListener('DOMContentLoaded', loadTheme);
