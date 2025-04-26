@@ -1,4 +1,3 @@
-
 // Select DOM elements
 const addTaskBtn = document.getElementById('addTaskBtn');
 const taskInput = document.getElementById('taskInput');
@@ -19,13 +18,23 @@ function addTask() {
     }
 }
 
-// Function to create a <li> element with delete and edit functionality
+// Create a <li> element with Edit and Delete buttons
 function createTaskElement(taskText) {
     const li = document.createElement('li');
-    li.textContent = taskText;
+    const span = document.createElement('span');
+    span.textContent = taskText;
 
-    // Delete when single-click
-    li.addEventListener('click', function() {
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'Edit';
+    editBtn.className = 'edit-btn';
+    editBtn.addEventListener('click', function() {
+        editTask(li, span, taskText);
+    });
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.addEventListener('click', function() {
         li.classList.add('fade-out');
         setTimeout(() => {
             li.remove();
@@ -33,55 +42,57 @@ function createTaskElement(taskText) {
         }, 500);
     });
 
-    // Edit when double-click
-    li.addEventListener('dblclick', function() {
-        editTask(li, taskText);
-    });
+    li.appendChild(span);
+    li.appendChild(editBtn);
+    li.appendChild(deleteBtn);
 
     return li;
 }
 
-// Function to save a task into localStorage
+// Save task to localStorage
 function saveTask(task) {
     let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     tasks.push(task);
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
-// Function to delete a task from localStorage
+// Delete task from localStorage
 function deleteTask(taskToDelete) {
     let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     tasks = tasks.filter(task => task !== taskToDelete);
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
-// Function to edit a task
-function editTask(li, oldTaskText) {
+// Edit task functionality
+function editTask(li, span, oldTaskText) {
     const input = document.createElement('input');
     input.type = 'text';
     input.value = oldTaskText;
-    input.classList.add('edit-input');
-    
-    li.textContent = '';
+    input.className = 'edit-input';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Save';
+    saveBtn.className = 'save-btn';
+
+    // Clear existing content and add input + save button
+    li.innerHTML = '';
     li.appendChild(input);
-    input.focus();
+    li.appendChild(saveBtn);
 
-    input.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            const newTaskText = input.value.trim();
+    saveBtn.addEventListener('click', function() {
+        const newTaskText = input.value.trim();
+        if (newTaskText !== "") {
+            updateTask(oldTaskText, newTaskText);
 
-            if (newTaskText !== "") {
-                updateTask(oldTaskText, newTaskText);
-                const newLi = createTaskElement(newTaskText);
-                li.replaceWith(newLi);
-            } else {
-                alert("Task cannot be empty!");
-            }
+            const updatedLi = createTaskElement(newTaskText);
+            li.replaceWith(updatedLi);
+        } else {
+            alert("Task cannot be empty!");
         }
     });
 }
 
-// Function to update a task in localStorage
+// Update task inside localStorage
 function updateTask(oldTask, newTask) {
     let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     const index = tasks.indexOf(oldTask);
@@ -92,7 +103,7 @@ function updateTask(oldTask, newTask) {
     }
 }
 
-// Function to load all tasks when page loads
+// Load tasks when page loads
 function loadTasks() {
     const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     tasks.forEach(task => {
@@ -101,15 +112,15 @@ function loadTasks() {
     });
 }
 
-// Event listener for button click
+// Add task on button click
 addTaskBtn.addEventListener('click', addTask);
 
-// Event listener for Enter key press
+// Add task on pressing Enter key
 taskInput.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
         addTask();
     }
 });
 
-// Load tasks when page loads
+// Load tasks when the DOM is ready
 window.addEventListener('DOMContentLoaded', loadTasks);
