@@ -5,51 +5,105 @@ const taskList = document.getElementById('taskList');
 
 // Function to add a new task
 function addTask() {
-    const taskText = taskInput.value.trim(); // Get input value and remove spaces
+    const taskText = taskInput.value.trim();
 
     if (taskText !== "") {
         const li = createTaskElement(taskText);
         taskList.appendChild(li);
 
-        saveTask(taskText); // 🔥 Save task to localStorage
-        taskInput.value = ""; // Clear input after adding
+        saveTask(taskText);
+        taskInput.value = "";
     } else {
         alert("Please enter a task!");
     }
 }
 
-// Function to create a <li> element with delete functionality
+// Create a <li> element with Edit and Delete buttons
 function createTaskElement(taskText) {
     const li = document.createElement('li');
-    li.textContent = taskText;
+    const span = document.createElement('span');
+    span.textContent = taskText;
 
-    // 🎯 When clicking a task, delete it
-    li.addEventListener('click', function() {
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'Edit';
+    editBtn.className = 'edit-btn';
+    editBtn.addEventListener('click', function() {
+        editTask(li, span, taskText);
+    });
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.addEventListener('click', function() {
         li.classList.add('fade-out');
         setTimeout(() => {
             li.remove();
-            deleteTask(taskText); // 🔥 Delete task from localStorage
+            deleteTask(taskText);
         }, 500);
     });
+
+    li.appendChild(span);
+    li.appendChild(editBtn);
+    li.appendChild(deleteBtn);
 
     return li;
 }
 
-// Function to save a task into localStorage
+// Save task to localStorage
 function saveTask(task) {
-    let tasks = JSON.parse(localStorage.getItem('tasks')) || []; // Get existing tasks or empty array
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     tasks.push(task);
-    localStorage.setItem('tasks', JSON.stringify(tasks)); // Save updated array
+    localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
-// Function to delete a task from localStorage
+// Delete task from localStorage
 function deleteTask(taskToDelete) {
     let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    tasks = tasks.filter(task => task !== taskToDelete); // Keep all tasks except the one clicked
-    localStorage.setItem('tasks', JSON.stringify(tasks)); // Save updated list
+    tasks = tasks.filter(task => task !== taskToDelete);
+    localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
-// Function to load all tasks when page loads
+// Edit task functionality
+function editTask(li, span, oldTaskText) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = oldTaskText;
+    input.className = 'edit-input';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Save';
+    saveBtn.className = 'save-btn';
+
+    // Clear existing content and add input + save button
+    li.innerHTML = '';
+    li.appendChild(input);
+    li.appendChild(saveBtn);
+
+    saveBtn.addEventListener('click', function() {
+        const newTaskText = input.value.trim();
+        if (newTaskText !== "") {
+            updateTask(oldTaskText, newTaskText);
+
+            const updatedLi = createTaskElement(newTaskText);
+            li.replaceWith(updatedLi);
+        } else {
+            alert("Task cannot be empty!");
+        }
+    });
+}
+
+// Update task inside localStorage
+function updateTask(oldTask, newTask) {
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    const index = tasks.indexOf(oldTask);
+
+    if (index !== -1) {
+        tasks[index] = newTask;
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+}
+
+// Load tasks when page loads
 function loadTasks() {
     const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     tasks.forEach(task => {
@@ -58,15 +112,15 @@ function loadTasks() {
     });
 }
 
-// Event listener for button click
+// Add task on button click
 addTaskBtn.addEventListener('click', addTask);
 
-// Event listener for Enter key press
+// Add task on pressing Enter key
 taskInput.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
         addTask();
     }
 });
 
-// 🎯 Load tasks on page load
+// Load tasks when the DOM is ready
 window.addEventListener('DOMContentLoaded', loadTasks);
