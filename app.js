@@ -10,8 +10,17 @@ function addTask() {
     if (taskText !== "") { // Only add if not empty
         const li = document.createElement('li'); // Create a new <li> element
         li.textContent = taskText; // Set its text content
-        taskList.appendChild(li); // Add the new task to the task list
 
+        // 🎯 NEW: Add event listener to delete task when clicked
+        li.addEventListener('click', function() {
+            // Smoothly remove task
+            li.classList.add('fade-out');
+            setTimeout(() => {
+                li.remove(); // Actually remove after animation
+            }, 500); // Match CSS transition duration
+        });
+
+        taskList.appendChild(li); // Add the new task to the task list
         taskInput.value = ""; // Clear the input field after adding
     } else {
         alert("Please enter a task!"); // If empty input, show an alert
@@ -21,10 +30,9 @@ function addTask() {
 // Event listener for button click
 addTaskBtn.addEventListener('click', addTask);
 
-// 🎯 NEW: Event listener for Enter key press
+// Event listener for Enter key press
 taskInput.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') { 
-        addTask(); // If Enter key is pressed, add the task
+    if (event.key === 'Enter') {
+        addTask();
     }
 });
-
